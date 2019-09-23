@@ -25,7 +25,6 @@
 </template>
 
 <script>
-// import gql from 'graphql-tag'
 import queryUsers from '../graphql/queryUsers.graphql'
 import mutationCreateUser from '../graphql/mutationCreateUser.graphql'
 import mutationDeleteUser from '../graphql/mutationDeleteUser.graphql'
@@ -53,24 +52,52 @@ export default {
   },
   methods: {
     addUser() {
+
+      // We save the user input in case of an error
+      const inputName = this.inputName
+      // We clear it early to give the UI a snappy feel
+      this.inputName = ''
+
       this.$apollo.mutate({
         mutation: mutationCreateUser,
         variables: {
-          name: this.inputName
+          name: inputName
         },
-        update: (store, {data: {name}}) => {
-          // eslint-disable-next-line no-console
-          console.log('store', store)
-          // eslint-disable-next-line no-console
-          console.log('name', name)
+        update: (store, {data: {createUser}}) => {
+          // Read the data from our cache for this query.
+          const data = store.readQuery({query: queryUsers})
+          // Add our tag from the mutation to the end
+          data.users.push(createUser)
+          // Write our data back to the cache.
+          store.writeQuery({query: queryUsers, data})
 
           // 簡單使用 refetch
-          this.$apollo.queries.users.refetch()
-        }
+          // this.$apollo.queries.users.refetch()
+        },
+        // Optimistic UI
+        // Will be treated as a 'fake' result as soon as the request is made
+        // so that the UI can react quickly and the user be happy
+        optimisticResponse: {
+          __typename: 'Mutation',
+          createUser: {
+            __typename: 'User',
+            id: -1,
+            name: inputName,
+          },
+        },
+      }).then((data) => {
+        // Result
+        // eslint-disable-next-line no-console
+        console.log('then -> data', data)
+      }).catch((error) => {
+        // Error
+        // eslint-disable-next-line no-console
+        console.error(error)
+        // We restore the initial user input
+        this.inputName = inputName
       })
     },
     deleteUser(id) {
-      console.log('id', id)
       this.$apollo.mutate({
         mutation: mutationDeleteUser,
         variables: {
