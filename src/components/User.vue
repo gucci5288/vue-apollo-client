@@ -28,7 +28,7 @@
 import queryUsers from '../graphql/queryUsers.graphql'
 import mutationCreateUser from '../graphql/mutationCreateUser.graphql'
 import mutationDeleteUser from '../graphql/mutationDeleteUser.graphql'
-
+// import gql from 'graphql-tag'
 export default {
   name: "User",
   data() {
@@ -70,9 +70,6 @@ export default {
           data.users.push(createUser)
           // Write our data back to the cache.
           store.writeQuery({query: queryUsers, data})
-
-          // 簡單使用 refetch
-          // this.$apollo.queries.users.refetch()
         },
         // Optimistic UI
         // Will be treated as a 'fake' result as soon as the request is made
@@ -87,11 +84,9 @@ export default {
         },
       }).then((data) => {
         // Result
-        // eslint-disable-next-line no-console
         console.log('then -> data', data)
       }).catch((error) => {
         // Error
-        // eslint-disable-next-line no-console
         console.error(error)
         // We restore the initial user input
         this.inputName = inputName
@@ -103,12 +98,7 @@ export default {
         variables: {
           id
         },
-        update: (store, {data: {name}}) => {
-          // eslint-disable-next-line no-console
-          console.log('store', store)
-          // eslint-disable-next-line no-console
-          console.log('name', name)
-
+        update: () => {
           // 簡單使用 refetch
           this.$apollo.queries.users.refetch()
         }
