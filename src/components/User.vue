@@ -1,10 +1,26 @@
 <template>
-  <div>
-    <div>
-      <input v-model="inputName"/>
-      <button @click="addUser">Add User</button>
-    </div>
-    <div v-for="user in users" :key="user.id">{{user.name}}</div>
+  <div class="container">
+    <b-field label="Name" :label-position="'on-border'" grouped>
+      <b-input v-model="inputName" placeholder="input name..." type="search"></b-input>
+      <p class="control">
+        <b-button class="button is-primary" @click="addUser">Add User</b-button>
+      </p>
+    </b-field>
+
+    <b-table :data="users">
+      <template slot-scope="props">
+        <b-table-column field="id" label="ID" width="40" numeric>
+          {{ props.row.id }}
+        </b-table-column>
+
+        <b-table-column field="name" label="Name">
+          {{ props.row.name }}
+        </b-table-column>
+        <b-table-column label="Delete">
+          <b-button class="is-danger" @click="deleteUser(props.row.id)">Delete</b-button>
+        </b-table-column>
+      </template>
+    </b-table>
   </div>
 </template>
 
@@ -12,12 +28,13 @@
 // import gql from 'graphql-tag'
 import queryUsers from '../graphql/queryUsers.graphql'
 import mutationCreateUser from '../graphql/mutationCreateUser.graphql'
+import mutationDeleteUser from '../graphql/mutationDeleteUser.graphql'
 
 export default {
   name: "User",
   data() {
     return {
-      inputName: ''
+      inputName: '',
     }
   },
   apollo: {
@@ -43,9 +60,27 @@ export default {
         },
         update: (store, {data: {name}}) => {
           // eslint-disable-next-line no-console
-          console.log('store',store)
+          console.log('store', store)
           // eslint-disable-next-line no-console
-          console.log('name',name)
+          console.log('name', name)
+
+          // 簡單使用 refetch
+          this.$apollo.queries.users.refetch()
+        }
+      })
+    },
+    deleteUser(id) {
+      console.log('id', id)
+      this.$apollo.mutate({
+        mutation: mutationDeleteUser,
+        variables: {
+          id
+        },
+        update: (store, {data: {name}}) => {
+          // eslint-disable-next-line no-console
+          console.log('store', store)
+          // eslint-disable-next-line no-console
+          console.log('name', name)
 
           // 簡單使用 refetch
           this.$apollo.queries.users.refetch()
@@ -59,5 +94,7 @@ export default {
 </script>
 
 <style scoped>
-
+.container {
+  padding: 30px;
+}
 </style>
