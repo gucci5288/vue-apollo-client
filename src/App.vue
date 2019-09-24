@@ -6,12 +6,10 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
 import User from './components/User'
 export default {
   name: 'app',
   components: {
-    // HelloWorld,
     User
   }
 }

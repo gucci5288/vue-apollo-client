@@ -1,6 +1,6 @@
-# graphql-vue
+# graphql-vue-client
 
-## Project setup
+## Init
 ```
 npm install
 ```
